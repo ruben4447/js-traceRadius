@@ -6,6 +6,9 @@ var shapeCentre;
 var graphYValues = [], graphOrigin, xAxisLength, xInc = 0.5;
 const shape_radius = 100;
 
+const btn_pause = document.getElementById('btn-pause');
+const btn_play = document.getElementById('btn-play');
+const btn_step = document.getElementById('btn-step');
 const input_sides = document.getElementById('input-sides');
 const input_length = document.getElementById('input-length');
 const input_debug = document.getElementById(`input-debug`);
@@ -20,8 +23,8 @@ const APP_MODES = Object.freeze({ rotate: 0, follow: 1, graph: 2, colours: 3 });
 
 function changeAppMode(mode) {
     appMode = +mode;
-    if (appMode === APP_MODES.graph) shapeCentre = [shape_radius * 1.3, height/2];
-    else shapeCentre = [width/2, height/2];
+    if (appMode === APP_MODES.graph) shapeCentre = [shape_radius * 1.3, height / 2];
+    else shapeCentre = [width / 2, height / 2];
 
     shape.centre(...shapeCentre);
     if (mode === APP_MODES.graph) configSetRadius(shape_radius);
@@ -48,8 +51,9 @@ function configSetNSides(n) {
 }
 
 function configSetPointRot(deg, sudoSet = false) {
-    console.log(input_pointRot.value, deg)
-    if (sudoSet || input_pointRot.value != deg) input_pointRot.value = deg;
+    if (sudoSet || +input_pointRot.value != +deg) {
+        input_pointRot.value = deg;
+    }
     angle = deg;
 }
 
@@ -62,9 +66,12 @@ function configSetShapeRot(deg, updateShape, sudoSet = false) {
 function setup() {
     canvas = createCanvas(800, 500);
     canvas.parent("#target");
-    graphOrigin = [shape_radius * (2 * 1.3), height/2];
+    graphOrigin = [shape_radius * (2 * 1.3), height / 2];
     xAxisLength = width - graphOrigin[0];
-    
+
+    btn_pause.addEventListener('click', () => noLoop());
+    btn_play.addEventListener('click', () => loop());
+    btn_step.addEventListener('click', () => draw());
     input_sides.addEventListener('change', () => {
         configSetNSides(+input_sides.value);
     });
@@ -78,17 +85,19 @@ function setup() {
     });
 
     input_pointRot.value = 0;
-    input_pointRot.addEventListener('change', () => setPointRot(+input_pointRot.value));
+    input_pointRot.addEventListener('change', () => {
+        configSetPointRot(+input_pointRot.value, true);
+    });
     input_ΔpointRot.value = 1;
     input_ΔpointRot.addEventListener('change', () => angleInc = +input_ΔpointRot.value);
 
     input_shapeRot.value = 0;
-    input_shapeRot.addEventListener('change', () => configSetShapeRot(+input_shapeRot.value));
+    input_shapeRot.addEventListener('change', () => configSetShapeRot(+input_shapeRot.value, true));
     input_ΔshapeRot.value = 0;
-    input_ΔshapeRot.addEventListener('change', () => configSetPointRot(+input_ΔshapeRot.value));
+    input_ΔshapeRot.addEventListener('change', () => shapeRot = degToRad(+input_ΔshapeRot.value));
 
     input_appMode.addEventListener('change', () => changeAppMode(+input_appMode.value));
-    
+
     shape = new Shape(50, 3);
     configSetNSides(3);
     configSetRadius(Math.round(width / 3));
@@ -109,12 +118,12 @@ function rotateAroundPerim() {
     angle += angleInc;
     angle %= 360;
     configSetPointRot(angle);
-        
+
     if (input_debug.checked) {
         // Draw triangle segments inside shape
         stroke(255, 10, 22);
         shape.drawTriangleSegments(true);
-        
+
         // Draw segment heights (split each segment in two)
         stroke(255, 100, 220);
         shape.drawSegmentHeights();
@@ -170,20 +179,20 @@ function followMouse() {
     // get angle of mouse from shape centre
     let angle = shape.getAngleFromCentre(mouseX, mouseY);
     configSetPointRot(angle);
-    
+
     if (input_debug.checked) {
         stroke(0, 255, 0);
         let dx = shape.x - mouseX;
         line(mouseX, mouseY, mouseX + dx, mouseY);
         let dy = shape.y - mouseY;
         line(mouseX + dx, mouseY, mouseX + dx, mouseY + dy);
-        
+
         stroke(255, 0, 0);
         line(mouseX, mouseY, mouseX + dx, mouseY + dy);
     }
-    
+
     point = shape.pointOnRadius(angle);
-    
+
     if (input_debug.checked) {
         // Line from center to point
         stroke(51);
@@ -216,12 +225,12 @@ function drawGraph() {
     background(255);
     shape.startingAngle += shapeRot;
     shape.startingAngle %= TWO_PI;
-    consigSetShapeRot(radToDeg(shape.startingAngle), false);
+    configSetShapeRot(radToDeg(shape.startingAngle), false);
 
     angle += angleInc;
     angle %= 360;
     configSetPointRot(angle);
-    
+
     // Draw shape outline
     stroke(51);
     noFill();
@@ -232,7 +241,7 @@ function drawGraph() {
     point = shape.pointOnRadius(theta);
     graphYValues.push(point[1]);
     while (graphYValues.length > xAxisLength / xInc) graphYValues.shift();
-    
+
     // Draw line to point
     input_debug.checked ? stroke(0, 0, 255) : stroke(51);
     line(shape.x, shape.y, ...point)
@@ -245,7 +254,7 @@ function drawGraph() {
     // Y axis
     let maxdy = shape.getRadius() + 10;
     line(graphOrigin[0], graphOrigin[1] - maxdy, graphOrigin[0], graphOrigin[1] + maxdy);
-    
+
     // X axis
     line(graphOrigin[0], graphOrigin[1], graphOrigin[0] + xAxisLength, graphOrigin[1]);
 
@@ -291,18 +300,18 @@ function drawGraph() {
 
 function drawColoured() {
     background(51, 25);
-    
+
     angle += angleInc;
     angle %= 360;
     input_pointRot.value = angle;
-    
+
     stroke(255);
     shape.drawOutline();
-    
+
     let α = degToRad(angle);
-    
+
     const DEBUG = input_debug.checked;
-    
+
     colorMode(HSB);
     let div = 360 / shape.nSides;
     let θ = shape.getTheta();
@@ -311,7 +320,7 @@ function drawColoured() {
         fill(i * div, 255, 255);
         let point = shape.pointOnRadius((i * θ) + α);
         circle(...point, 10);
-        
+
         if (DEBUG) {
             stroke(i * div, 100, 100);
             line(...point, shape.x, shape.y);

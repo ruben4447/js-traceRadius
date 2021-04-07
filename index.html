@@ -5,13 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trace Radius</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="p5.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./src/p5.js" charset="utf-8"></script>
 </head>
 <body>
     <div id="target"></div>
     <br>
     <p>
+        <button id='btn-pause'>Pause</button> | <button id='btn-play'>Play</button> | <button id='btn-step'>Step</button> |
+        <br>
         App Mode: <select id='input-app-mode'>
             <option value='0' title="Rotate around Perimeter">Rotate</option>
             <option value='1'>Follow Mouse</option>
@@ -28,8 +30,10 @@
         <br>
         Debug <input type="checkbox" id="input-debug" /> |
     </p>
-    <script src="shape.js" charset="utf-8"></script>
-    <script src="utils.js" charset="utf-8"></script>
-    <script src="main.js" charset="utf-8"></script>
+    <br>
+    <p><em>GitHub repot at <a href='https://github.com/ruben4447/js-traceRadius' target='_blank'>js-traceRadius</a></em></p>
+    <script src="./src/shape.js" charset="utf-8"></script>
+    <script src="./src/utils.js" charset="utf-8"></script>
+    <script src="./src/main.js" charset="utf-8"></script>
 </body>
 </html>
