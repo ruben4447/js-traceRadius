@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trace Radius</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="p5.js" charset="utf-8"></script>
+</head>
+<body>
+    <div id="target"></div>
+    <br>
+    <p>
+        App Mode: <select id='input-app-mode'>
+            <option value='0' title="Rotate around Perimeter">Rotate</option>
+            <option value='1'>Follow Mouse</option>
+            <option value='2'>Graph</option>
+            <option value='3'>Colours</option>
+        </select> |
+        Sides: <input type="number" id="input-sides" /> |
+        Side Length: <input type="number" id="input-length" /> |
+        Shape Radius: <input type="number" id="input-radius" />
+        <br>
+        Point Rotation: <input type="number" id="input-point-rot" /> &deg; (+ <input type="number" id="input-point-rot-delta" /> &deg;)
+        <br>
+        Shape Rotation: <input type="number" id="input-shape-rot" /> &deg; (+ &deg; <input type="number" id="input-shape-rot-delta" /> &deg;)
+        <br>
+        Debug <input type="checkbox" id="input-debug" /> |
+    </p>
+    <script src="shape.js" charset="utf-8"></script>
+    <script src="utils.js" charset="utf-8"></script>
+    <script src="main.js" charset="utf-8"></script>
+</body>
+</html>
